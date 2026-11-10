@@ -112,7 +112,26 @@ def main():
                 if company: e["companies"].add(company)
                 if amount: e["amounts"].append(amount)
                 e["proof"].append({"url": url, "title": r.get("title", ""), "date": r.get("date", "")})
-    ranked = sorted(investors.items(), key=lambda kv: (-kv[1]["mentions"], -len(kv[1]["companies"])))
+    # merge common aliases: {"y": "y combinator", "sequoia": "sequoia capital", ...}
+    canon = {}
+    for name in investors:
+        low = name.lower().strip()
+        canon.setdefault(low, name)
+    for low, full in list(canon.items()):
+        for low2, full2 in canon.items():
+            if low != low2 and (low2.startswith(low + " ") or low2.endswith(" " + low)):
+                if len(full2) > len(full):
+                    canon[low] = full2
+    merged = {}
+    for name, e in investors.items():
+        target = canon[name.lower().strip()]
+        if target in merged:
+            m = merged[target]
+            m["mentions"] += e["mentions"]; m["companies"] |= e["companies"]
+            m["amounts"] += e["amounts"]; m["proof"] += e["proof"]
+        else:
+            merged[target] = e
+    ranked = sorted(merged.items(), key=lambda kv: (-kv[1]["mentions"], -len(kv[1]["companies"])))
     out = []
     for name, e in ranked:
         proof, seen_p = [], set()
