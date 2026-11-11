@@ -1,47 +1,36 @@
 # funding radar
 
-who would actually fund your startup?
+Give it one line about your startup. It gives you a ranked list of investors to pitch, with proof.
 
-give it a one-line description of a startup. it finds companies like yours
-that raised in the last 12-18 months, works out who backed them, and gives
-you a ranked list of investors to approach - with proof for every match.
+Built on four TinyFish endpoints:
 
-built on the [TinyFish Search API](https://docs.tinyfish.ai/search-api).
-zero dependencies, just python 3.8+.
+1. **Datasets (TinySet)** builds a live dataset of similar companies that raised recently - name, round, amount, date, investors, source URL.
+2. **Search** verifies each investor's recent deals and finds their contact/pitch route.
+3. **Fetch** reads the investor pages to confirm the pitch route is real.
+4. **Research** (deep run) names the partner who led each deal, typical cheque sizes, and stage focus.
 
-## use
+## usage
 
 ```bash
-export TINYFISH_API_KEY=sk-tinyfish-...   # get one at agent.tinyfish.ai/api-keys
-python3 funding_radar.py "voice AI agents for outbound sales calls"
-python3 funding_radar.py --json "devtool that reviews AI agent PRs"   # machine-readable
-python3 funding_radar.py --months 12 "vertical SaaS for dental clinics"
+export TINYFISH_API_KEY=...   # https://agent.tinyfish.ai/api-keys
+python3 funding_radar.py "voice AI agents for outbound sales calls" --stage seed --country US --out report.md
 ```
 
-## example (real output, "voice AI agents for outbound sales calls")
+options:
+- `--months 18` - lookback window for funding rounds (default 18)
+- `--dataset-id <id>` - reuse an existing TinySet dataset instead of building a new one
+- `--research-md <file>` - attach a saved Research deep-run memo instead of launching a new run
+- `--no-research` - skip the Research phase (fast)
+- `--json` - machine-readable output
 
-```
- 1. Y Combinator  (3 mentions)
-    backed: Cekura, Simple AI
-    proof [Feb 10, 2026]: https://pulse2.com/simple-ai-14-million-seed-funding-raised-for-voice-ai-agent-platform/
- 2. First Harmonic  (3 mentions)
-    backed: Simple AI
-    proof [Feb 12, 2026]: https://www.techinasia.com/news/combinatorbacked-ai-voice-startup-simple-nets-14m-seed
- 3. Acrew Capital  (1 mentions)
-    backed: Guava
-    proof: https://www.businesswire.com/news/home/20261102236960/en/Guava-Lands-%2412.5-Million...
-```
+## demos
 
-## how it works
+Three different startups, three real reports:
 
-1. pulls the distinctive keywords out of your description
-2. runs 5 funding-news searches through TinyFish (freshness-bounded to your window)
-3. extracts investors, amounts and company names from every result
-4. ranks investors by mentions across independent sources
-5. attaches the source URL and date for every single match - no proof, no listing
+- [voice AI for outbound sales (US, seed)](demos/demo-voice-ai.md) - 15 companies, 12 ranked investors, full Research memo naming deal leads and cheques ([raw run](demos/research-voice-ai-run.json))
+- [AI PR-review devtool (US, seed)](demos/demo-pr-review.md) - 11 companies, 12 ranked investors
+- [dental clinic SaaS (India, seed)](demos/demo-india-dental-saas.md) - 14 companies, 12 ranked investors
 
-why this beats cold-calling a VC list: an investor who wired money into a
-company like yours 8 months ago already believes in the category and still
-has to deploy. pitch them while the thesis is hot.
+Every company and deal claim links to a live source. Ranking rationale: number of similar companies backed, rounds led, deals in the last 9 months.
 
-built by [som](https://github.com/somdipto) for the tinyfish ambassador program.
+Built for the TinyBounties Funding Radar bounty by [@somdipto](https://github.com/somdipto).
